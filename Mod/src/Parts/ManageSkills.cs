@@ -8,7 +8,7 @@ namespace XRL.World.Parts {
 
     [Serializable]
     public class CleverGirl_AIManageSkills : IPart {
-        public static readonly Utility.InventoryAction ACTION = new Utility.InventoryAction {
+        public static readonly Utility.InventoryAction ACTION = new() {
             Name = "Clever Girl - Manage Skills",
             Display = "manage s{{inventoryhotkey|k}}ills",
             Command = "CleverGirl_ManageSkills",
@@ -35,7 +35,7 @@ namespace XRL.World.Parts {
         /// <summary>
         /// these skills don't make sense for companions
         /// </summary>
-        public static HashSet<string> IgnoreSkills = new HashSet<string>{
+        public static HashSet<string> IgnoreSkills = new() {
             "Cooking and Gathering",
             "Customs and Folklore",
             "Tinkering",
@@ -45,7 +45,7 @@ namespace XRL.World.Parts {
             "Mind over Body",
         };
 
-        public static HashSet<string> CombatSkills = new HashSet<string>{
+        public static HashSet<string> CombatSkills = new() {
             "Axe",
             "Bow and Rifle",
             "Cudgel",

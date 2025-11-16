@@ -10,7 +10,7 @@ namespace XRL.World.Parts {
     [Serializable]
     [HarmonyPatch]
     public class CleverGirl_AIManageMutations : IPart {
-        public static readonly Utility.InventoryAction ACTION = new Utility.InventoryAction {
+        public static readonly Utility.InventoryAction ACTION = new() {
             Name = "Clever Girl - Manage Mutations",
             Display = "manage mu{{inventoryhotkey|t}}ations",
             Command = "CleverGirl_ManageMutations",
@@ -63,7 +63,7 @@ namespace XRL.World.Parts {
             set => ParentObject.SetIntProperty(NEWMUTATIONSAVINGS_PROPERTY, value);
         }
 
-        public static HashSet<string> CombatMutations = new HashSet<string>{
+        public static HashSet<string> CombatMutations = new() {
             "Corrosive Gas Generation",
             "Electromagnetic Pulse",
             "Flaming Ray",
@@ -163,7 +163,7 @@ namespace XRL.World.Parts {
                     }
                     if (!ParentObject.IsCombatObject()) {
                         // don't offer combat mutations to NoCombat companions
-                        possibleMutations = possibleMutations.Where(m => !CombatMutations.Contains(m.DisplayName))
+                        possibleMutations = possibleMutations.Where(m => !CombatMutations.Contains(m.GetDisplayName()))
                                                              .ToList();
                     }
                     var valuableMutations = possibleMutations.Where(m => m.Cost > 1);
@@ -178,7 +178,7 @@ namespace XRL.World.Parts {
                         var mutation = mutationType.CreateInstance();
                         var newPartString = choices.Count != newPartIndex ? "" : "{{G|+ grow a new body part}}";
                         choices.Add(mutation);
-                        strings.Add("{{W|" + mutation.DisplayName + "}} " + newPartString +
+                        strings.Add("{{W|" + mutation.GetDisplayName() + "}} " + newPartString +
                                     " {{y|- " + mutation.GetDescription() + "}}\n" + mutation.GetLevelText(1));
                         if (choices.Count == choiceCount) {
                             break;
@@ -196,7 +196,7 @@ namespace XRL.World.Parts {
 
                     var choice = isFollower ? 0 : -1;
                     while (-1 == choice) {
-                        choice = Popup.ShowOptionList(Options: strings.ToArray(),
+                        choice = Popup.PickOption(Options: strings.ToArray(),
                                                       Spacing: 1,
                                                       Intro: "Choose a mutation for " + ParentObject.the + ParentObject.ShortDisplayName + ".",
                                                       MaxWidth: 78,
@@ -206,7 +206,7 @@ namespace XRL.World.Parts {
                     var result = choices[choice];
                     BackwardsCompatibility.RandomizeMutationVariant(result, Random);  // let companions choose their variant 😄
                     var mutationIndex = mutations.AddMutation(result, 1);
-                    DidX("gain", mutations.MutationList[mutationIndex].DisplayName, "!", UsePopup: true, ColorAsGoodFor: ParentObject);
+                    DidX("gain", mutations.MutationList[mutationIndex].GetDisplayName(), "!", UsePopup: true, ColorAsGoodFor: ParentObject);
                     if (choice == newPartIndex) {
                         _ = mutations.AddChimericBodyPart();
                     }
@@ -249,7 +249,7 @@ namespace XRL.World.Parts {
                           allPhysicalMutations[0];
             var insteadKey = "RapidLevel_" + instead.GetMutationClass();
             manageMutations.DidX("rapidly advance",
-                                 instead.DisplayName + " by " + Language.Grammar.Cardinal(Amount) + " ranks to rank " + (instead.Level + Amount),
+                                 instead.GetDisplayName() + " by " + Language.Grammar.Cardinal(Amount) + " ranks to rank " + (instead.Level + Amount),
                                  "!", ColorAsGoodFor: __instance.ParentObject);
             _ = __instance.ParentObject.ModIntProperty(insteadKey, Amount);
 
@@ -272,7 +272,7 @@ namespace XRL.World.Parts {
                     var levelAdjustString = levelAdjust == 0 ? "" :
                                                                levelAdjust < 0 ? "{{R|-" + (-levelAdjust) + "}}" :
                                                                                  "{{G|+" + levelAdjust + "}}";
-                    strings.Add(prefix + " " + Mutation.DisplayName + " (" + Mutation.BaseLevel + levelAdjustString + ")");
+                    strings.Add(prefix + " " + Mutation.GetDisplayName() + " (" + Mutation.BaseLevel + levelAdjustString + ")");
                     keys.Add(keys.Count >= 26 ? ' ' : (char)('a' + keys.Count));
                 }
             }
@@ -299,7 +299,7 @@ namespace XRL.World.Parts {
             }
 
             while (true) {
-                var index = Popup.ShowOptionList(Options: strings.ToArray(),
+                var index = Popup.PickOption(Options: strings.ToArray(),
                                                 Hotkeys: keys.ToArray(),
                                                 Intro: "What mutations should " + ParentObject.the + ParentObject.ShortDisplayName + " advance?",
                                                 AllowEscape: true);
@@ -326,13 +326,13 @@ namespace XRL.World.Parts {
                     if (strings[index][0] != '*') {
                         changed = true;
                         WantNewMutations = !WantNewMutations;
-                        strings[index] = (WantNewMutations ? '+' : '-') + strings[index].Substring(1);
+                        strings[index] = (WantNewMutations ? '+' : '-') + strings[index][1..];
                     }
                 } else if (newFollowerMutationIndex == index) {
                     if (strings[index][0] != '*') {
                         changed = true;
                         FollowersWantNewMutations = !FollowersWantNewMutations;
-                        strings[index] = (FollowersWantNewMutations ? '+' : '-') + strings[index].Substring(1);
+                        strings[index] = (FollowersWantNewMutations ? '+' : '-') + strings[index][1..];
                     }
                 } else if (strings[index][0] == '*') {
                     // ignore
@@ -342,7 +342,7 @@ namespace XRL.World.Parts {
                     working.Add(mutations[index]);
                     FocusingMutations = working;
 
-                    strings[index] = '+' + strings[index].Substring(1);
+                    strings[index] = '+' + strings[index][1..];
                     changed = true;
                 } else if (strings[index][0] == '+') {
                     // stop leveling this mutation
@@ -350,7 +350,7 @@ namespace XRL.World.Parts {
                     _ = working.Remove(mutations[index]);
                     FocusingMutations = working;
 
-                    strings[index] = '-' + strings[index].Substring(1);
+                    strings[index] = '-' + strings[index][1..];
                     changed = true;
                 }
             }

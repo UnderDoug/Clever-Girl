@@ -14,7 +14,7 @@ namespace CleverGirl {
     using XRL.World.Anatomy;
 
     public static class ManageGear {
-        public static readonly Utility.InventoryAction ACTION = new Utility.InventoryAction {
+        public static readonly Utility.InventoryAction ACTION = new() {
             Name = "Clever Girl - Manage Gear",
             Display = "manage g{{inventoryhotkey|e}}ar",
             Command = "CleverGirl_ManageGear",
@@ -208,7 +208,7 @@ namespace CleverGirl {
                         var key1 = (char.ToLower((char)Keyboard.Char).ToString() + " ").ToLower()[0];
                         if (keys == Keys.MouseEvent && Keyboard.CurrentMouseEvent.Event == "RightClick") {
                             Done = true;
-                        } else if (keys == Keys.Escape || keys == Keys.NumPad5) {
+                        } else if (keys is Keys.Escape or Keys.NumPad5) {
                             Done = true;
                         } else if (keys == Keys.Prior) {
                             selectedIndex = 0;
@@ -259,7 +259,7 @@ namespace CleverGirl {
                             if (keys == Keys.Enter) {
                                 keys = Keys.Space;
                             }
-                            var useSelected = keys == Keys.Space || keys == Keys.Enter;
+                            var useSelected = keys is Keys.Space or Keys.Enter;
                             if (useSelected || (keys >= Keys.A && keys <= Keys.Z && keymap.ContainsKey(key1))) {
                                 var pressedIndex = useSelected ? selectedIndex : keymap[key1];
                                 if (allEquipped[pressedIndex] != null) {

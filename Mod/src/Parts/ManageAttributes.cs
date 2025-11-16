@@ -7,7 +7,7 @@ namespace XRL.World.Parts {
 
     [Serializable]
     public class CleverGirl_AIManageAttributes : IPart {
-        public static readonly Utility.InventoryAction ACTION = new Utility.InventoryAction {
+        public static readonly Utility.InventoryAction ACTION = new() {
             Name = "Clever Girl - Manage Attributes",
             Display = "manage att{{inventoryhotkey|r}}ibutes",
             Command = "CleverGirl_ManageAttributes",
@@ -41,7 +41,7 @@ namespace XRL.World.Parts {
         }
 
         [NonSerialized]
-        public static Dictionary<string, string> Comparatives = new Dictionary<string, string>{
+        public static Dictionary<string, string> Comparatives = new() {
             {"Strength", "stronger"},
             {"Agility", "quicker"},
             {"Toughness", "tougher"},
@@ -51,7 +51,7 @@ namespace XRL.World.Parts {
         };
 
         [NonSerialized]
-        public static Dictionary<string, string[]> Categories = new Dictionary<string, string[]>{
+        public static Dictionary<string, string[]> Categories = new() {
             {"Strength", new string[]{"feeble", "weak", "average", "strong", "beefy", "heckin' swole"}},
             {"Agility", new string[]{"ponderous", "slow", "average", "quick", "olympian", "sonic fast"}},
             {"Toughness", new string[]{"frail", "vulnerable", "average", "tough", "tanky", "slug sponge"}},
@@ -94,7 +94,7 @@ namespace XRL.World.Parts {
             }
 
             while (true) {
-                var index = Popup.ShowOptionList(Options: strings.ToArray(),
+                var index = Popup.PickOption(Options: strings.ToArray(),
                                                 Hotkeys: keys.ToArray(),
                                                 Intro: "What attributes should " + ParentObject.the + ParentObject.ShortDisplayName + " hone?",
                                                 AllowEscape: true);
@@ -122,7 +122,7 @@ namespace XRL.World.Parts {
                     working.Add(attributes[index]);
                     HoningAttributes = working;
 
-                    strings[index] = '+' + strings[index].Substring(1);
+                    strings[index] = '+' + strings[index][1..];
                     changed = true;
                 } else if (strings[index][0] == '+') {
                     // stop honing this attribute
@@ -130,7 +130,7 @@ namespace XRL.World.Parts {
                     _ = working.Remove(attributes[index]);
                     HoningAttributes = working;
 
-                    strings[index] = '-' + strings[index].Substring(1);
+                    strings[index] = '-' + strings[index][1..];
                     changed = true;
                 }
             }

@@ -15,14 +15,14 @@ namespace CleverGirl {
     using XRL.World.Skills.Cooking;
 
     public static class Feed {
-        public static readonly Utility.InventoryAction ACTION = new Utility.InventoryAction {
+        public static readonly Utility.InventoryAction ACTION = new() {
             Name = "Clever Girl - Feed",
             Display = "fee{{inventoryhotkey|d}}",
             Command = "CleverGirl_Feed",
             Key = 'd',
             Valid = CanFeed,
         };
-        public static readonly Utility.InventoryAction COOKING_ACTION = new Utility.InventoryAction {
+        public static readonly Utility.InventoryAction COOKING_ACTION = new() {
             Name = "Clever Girl - Feed Multiple",
             Display = "Feed companions",
             Command = "CleverGirl_FeedMultiple",
@@ -83,23 +83,23 @@ namespace CleverGirl {
             var last = 0;
             while (true) {
                 options[1] = (feedCount == 0 ? "&K" : "") + "Feed " + feedCount + " selected companion" + (feedCount == 1 ? "" : "s") + ".";
-                var index = Popup.ShowOptionList("{{W|Your companions {{watery|salivate}} expectantly.}}",
-                                                Options: options.ToArray(),
-                                                Icons: icons.ToArray(),
-                                                iconPosition: 6,
-                                                centerIntro: true,
-                                                DefaultSelected: last,
-                                                AllowEscape: true);
+                var index = Popup.PickOption(Title: "{{W|Your companions {{watery|salivate}} expectantly.}}",
+                                             Options: options.ToArray(),
+                                             Icons: icons.ToArray(),
+                                             IconPosition: 6,
+                                             CenterIntro: true,
+                                             DefaultSelected: last,
+                                             AllowEscape: true);
                 if (index == -1) {
                     return false;
                 }
                 if (index > 1) {
                     last = index;
                     if (options[index].StartsWith(check)) {
-                        options[index] = "[ ]" + options[index].Substring(check.Length);
+                        options[index] = "[ ]" + options[index][check.Length..];
                         --feedCount;
                     } else {
-                        options[index] = check + options[index].Substring("[ ]".Length);
+                        options[index] = check + options[index]["[ ]".Length..];
                         ++feedCount;
                     }
                 } else {
@@ -170,11 +170,11 @@ namespace CleverGirl {
                 }
             }
             while (true) {
-                var index = Popup.ShowOptionList("What's for dinner, boss?",
-                                                Options: options.ToArray(),
-                                                Hotkeys: keys.ToArray(),
-                                                IntroIcon: introIcon,
-                                                AllowEscape: true);
+                var index = Popup.PickOption(Title: "What's for dinner, boss?",
+                                             Options: options.ToArray(),
+                                             Hotkeys: keys.ToArray(),
+                                             IntroIcon: introIcon,
+                                             AllowEscape: true);
                 if (index == -1) {
                     return false;
                 }
@@ -369,24 +369,24 @@ namespace CleverGirl {
             while (true) {
                 var countString = "{{" + (countIngredients > maxIngredients ? "R" : "C") + "|" + countIngredients + "}}";
                 options[0] = "{{W|Cook with the " + countString + " selected ingredients.}}";
-                var index = Popup.ShowOptionList("Choose ingredients to cook with.",
-                                                 options.ToArray(),
-                                                 Intro: "Selected " + countString + " of " + maxIngredients + " possible ingredients.",
-                                                 AllowEscape: true,
-                                                 DefaultSelected: last,
-                                                 Icons: icons.ToArray(),
-                                                 iconPosition: 6
-                                                 );
+                var index = Popup.PickOption(Title: "Choose ingredients to cook with.",
+                                             Intro: "Selected " + countString + " of " + maxIngredients + " possible ingredients.",
+                                             Options: options.ToArray(),
+                                             AllowEscape: true,
+                                             DefaultSelected: last,
+                                             Icons: icons.ToArray(),
+                                             IconPosition: 6
+                                             );
                 if (index == -1) {
                     return false;
                 }
                 last = index;
                 if (index > 0) {
                     if (options[index].StartsWith(check)) {
-                        options[index] = "[ ]" + options[index].Substring(check.Length);
+                        options[index] = "[ ]" + options[index][check.Length..];
                         --countIngredients;
                     } else {
-                        options[index] = check + options[index].Substring("[ ]".Length);
+                        options[index] = check + options[index]["[ ]".Length..];
                         ++countIngredients;
                     }
                 }
@@ -443,12 +443,14 @@ namespace CleverGirl {
             if (ingredientTypes.Count > 0) {
                 ProceduralCookingEffect actualEffect;
                 if (Leader.HasEffect<Inspired>()) {
-                    var recipeOptions = Campfire.GenerateEffectsFromTypeList(ingredientTypes, 3);
-                    var index = Popup.ShowOptionList("You let inspiration guide you toward a mouthwatering dish.",
-                        recipeOptions.ConvertAll(effect => Campfire.ProcessEffectDescription(effect.GetTemplatedProceduralEffectDescription(), target)).ToArray(),
-                        Spacing: 1);
+                    var recipeEffects = Campfire.GenerateEffectsFromTypeList(ingredientTypes, 3);
+                    var recipeOptions = recipeEffects.ConvertAll(effect => Campfire.ProcessEffectDescription(effect.GetTemplatedProceduralEffectDescription(), target))
+                                                     .ToArray();
+                    var index = Popup.PickOption(Title: "You let inspiration guide you toward a mouthwatering dish.",
+                                                 Options: recipeOptions,
+                                                 Spacing: 1);
 
-                    actualEffect = recipeOptions[index];
+                    actualEffect = recipeEffects[index];
                     var newRecipe = CookingRecipe.FromIngredients(mealEffectiveIngredients, actualEffect, Companions[0].BaseDisplayName);
                     _ = CookingGameState.LearnRecipe(newRecipe);
                     Popup.Show("You create a new recipe for {{|" + newRecipe.GetDisplayName() + "}}!");
@@ -562,14 +564,12 @@ namespace CleverGirl {
                                 foreach (var obj in ingredient.Objects) {
                                     var volume = obj.GetPart<LiquidVolume>();
                                     if (volume?.IsPureLiquid(liquidComponent.liquid) == true) {
-                                        if (gestaltIngredient == null) {
-                                            gestaltIngredient = new Ingredient {
-                                                Name = ingredient.Name,
-                                                Count = 0,
-                                                Icon = ingredient.Icon,
-                                                Objects = new List<GameObject>()
-                                            };
-                                        }
+                                        gestaltIngredient ??= new Ingredient() {
+                                            Name = ingredient.Name,
+                                            Count = 0,
+                                            Icon = ingredient.Icon,
+                                            Objects = new List<GameObject>()
+                                        };
                                         gestaltIngredient.Count += volume.Volume;
                                         gestaltIngredient.Objects.Add(obj);
                                     }
@@ -610,15 +610,15 @@ namespace CleverGirl {
             bool doCook;
             do {
                 doCook = false;
-                index = Popup.ShowOptionList("Choose a recipe",
-                                             relevantRecipes.Select(t => t.Item1).ToArray(),
-                                             Spacing: 1,
-                                             Intro: showUncookable ? "" : "&K< " + uncookableMessages.Count + " hidden for missing ingredients >",
-                                             MaxWidth: 72,
-                                             RespectOptionNewlines: true,
-                                             AllowEscape: true,
-                                             DefaultSelected: Math.Max(index, 0),
-                                             SpacingText: Popup.SPACING_DARK_LINE.Replace('=', '÷'));
+                index = Popup.PickOption(Title: "Choose a recipe",
+                                         Intro: showUncookable ? "" : "&K< " + uncookableMessages.Count + " hidden for missing ingredients >",
+                                         Options: relevantRecipes.Select(t => t.Item1).ToArray(),
+                                         Spacing: 1,
+                                         MaxWidth: 72,
+                                         RespectOptionNewlines: true,
+                                         AllowEscape: true,
+                                         DefaultSelected: Math.Max(index, 0),
+                                         SpacingText: Popup.SPACING_DARK_LINE.Replace('=', '÷'));
                 if (index == -1) {
                     return false;
                 }
@@ -636,11 +636,11 @@ namespace CleverGirl {
                         "Back",
                     };
                     var cancelled = false;
-                    switch (Popup.ShowOptionList(Options: options.ToArray(),
-                                                 Intro: relevantRecipes[index].Item1,
-                                                 MaxWidth: 72,
-                                                 RespectOptionNewlines: true,
-                                                 AllowEscape: true)) {
+                    switch (Popup.PickOption(Options: options.ToArray(),
+                                             Intro: relevantRecipes[index].Item1,
+                                             MaxWidth: 72,
+                                             RespectOptionNewlines: true,
+                                             AllowEscape: true)) {
                         case 0:
                             doCook = true;
                             break;
@@ -739,7 +739,7 @@ namespace CleverGirl {
                     }
                 }
 
-                string DisgustingName(GameObject gameObject) {
+                static string DisgustingName(GameObject gameObject) {
                     var existingAdjectives = gameObject.GetPartDescendedFrom<DisplayNameAdjectives>();
                     bool alreadyDisgusting = existingAdjectives?.AdjectiveList.Contains("disgusting") == true;
                     (existingAdjectives ?? gameObject.RequirePart<DisplayNameAdjectives>()).RequireAdjective("disgusting");

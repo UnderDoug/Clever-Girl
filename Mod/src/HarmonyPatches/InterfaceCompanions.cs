@@ -25,7 +25,7 @@ namespace CleverGirl.HarmonyPatches {
     // add "interface a companion" option to terminal
     [HarmonyPatch(typeof(CyberneticsTerminal2), "HandleEvent", new Type[] { typeof(GetInventoryActionsEvent) })]
     public static class CyberneticsTerminal2_HandleEvent_GetInventoryActionsEvent_Patch {
-        public static readonly Utility.InventoryAction ACTION = new Utility.InventoryAction {
+        public static readonly Utility.InventoryAction ACTION = new() {
             Name = "Clever Girl - Interface Companion",
             Display = "interface a companion",
             Command = "CleverGirl_Interface",
