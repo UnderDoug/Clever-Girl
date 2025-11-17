@@ -178,10 +178,10 @@ namespace XRL.World.Parts {
             }
 
             while (true) {
-                var index = Popup.ShowOptionList(Options: strings.ToArray(),
-                                                Hotkeys: keys.ToArray(),
-                                                Intro: "What skills should " + ParentObject.the + ParentObject.ShortDisplayName + " learn?",
-                                                AllowEscape: true);
+                var index = Popup.PickOption(Options: strings.ToArray(),
+                                             Hotkeys: keys.ToArray(),
+                                             Intro: "What skills should " + ParentObject.the + ParentObject.ShortDisplayName + " learn?",
+                                             AllowEscape: true);
                 if (index < 0) {
                     if (LearningSkills.Count == 0) {
                         // don't bother listening if there's nothing to hear
@@ -208,7 +208,7 @@ namespace XRL.World.Parts {
                     working.Add(skills[index]);
                     LearningSkills = working;
 
-                    strings[index] = '+' + strings[index].Substring(1);
+                    strings[index] = '+' + strings[index][1..];
                     changed = true;
                 } else if (strings[index][0] == '+') {
                     // stop learning this skill
@@ -216,7 +216,7 @@ namespace XRL.World.Parts {
                     _ = working.Remove(skills[index]);
                     LearningSkills = working;
 
-                    strings[index] = '-' + strings[index].Substring(1);
+                    strings[index] = '-' + strings[index][1..];
                     changed = true;
                 }
             }
