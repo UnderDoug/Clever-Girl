@@ -34,7 +34,7 @@ namespace CleverGirl.HarmonyPatches {
         };
         public static void Postfix(GetInventoryActionsEvent E) {
             if (ACTION.Valid(E)) {
-                _ = E.AddAction(ACTION.Name, ACTION.Display, ACTION.Command, Key: ACTION.Key, FireOnActor: true);
+                E.AddAction(ACTION.Name, ACTION.Display, ACTION.Command, Key: ACTION.Key, FireOnActor: true);
             }
         }
     }
