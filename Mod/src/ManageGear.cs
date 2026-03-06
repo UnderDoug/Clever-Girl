@@ -161,7 +161,7 @@ namespace CleverGirl {
                             _ = screenBuffer.Write(cursorString + keyString + partDesc);
 
                             _ = screenBuffer.Goto(28, currentRow);
-                            RenderEvent icon = null;
+                            IRenderable icon = null;
                             var name = "";
                             var fade = false;
                             if (allEquippedOrDefault[partIndex] == null) {
